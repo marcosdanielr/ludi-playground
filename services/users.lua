@@ -1,4 +1,5 @@
 local users = {}
+local users_by_email = {}
 local next_id = 1
 
 local m = {}
@@ -15,10 +16,8 @@ function m.add_user(data)
 	end
 
 	local email = data.email:lower()
-	for _, user in ipairs(users) do
-		if user.email:lower() == email then
-			return nil, "email already exists"
-		end
+	if users_by_email[email] then
+		return nil, "email already exists"
 	end
 
 	local user = {
@@ -27,6 +26,7 @@ function m.add_user(data)
 		email = email,
 	}
 	users[#users + 1] = user
+	users_by_email[email] = user
 	next_id = next_id + 1
 	return user
 end
