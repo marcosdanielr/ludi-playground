@@ -37,30 +37,30 @@ Validation: required name, email format check, case-insensitive unique email. Er
 
 ## Requirements
 
-- Lua 5.4
+- Lua 5.5 (recommended)
 - [LuaRocks](https://luarocks.org)
 - ludi and fredy installed locally (not yet published to LuaRocks):
 
 ```sh
 git clone https://github.com/Ludi-Framework/ludi
 cd ludi
-luarocks --lua-version 5.4 make ludi-dev-1.rockspec
+luarocks make ludi-dev-1.rockspec
 
 git clone https://github.com/Ludi-Framework/fredy
 cd fredy
-luarocks --lua-version 5.4 make fredy-dev-1.rockspec
+luarocks make fredy-dev-1.rockspec
 ```
 
 Make sure the LuaRocks paths are in your shell:
 
 ```sh
-eval "$(luarocks --lua-version 5.4 path)"
+eval "$(luarocks path)"
 ```
 
 ## Running
 
 ```sh
-lua5.4 server.lua
+lua server.lua
 ```
 
 Server listens on `http://localhost:3001`. The SQLite database is created at `app.db` (override with `DATABASE_PATH`).
