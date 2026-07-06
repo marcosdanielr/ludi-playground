@@ -1,6 +1,5 @@
-local users = {}
-local users_by_email = {}
-local next_id = 1
+local db = require("db")
+local users = require("schemas.users")
 
 local m = {}
 
@@ -16,39 +15,24 @@ function m.add_user(data)
 	end
 
 	local email = data.email:lower()
-	if users_by_email[email] then
+	if db:table(users):where({ email = email }):first() then
 		return nil, "email already exists"
 	end
 
-	local user = {
-		id = next_id,
-		name = data.name,
-		email = email,
-	}
-	users[#users + 1] = user
-	users_by_email[email] = user
-	next_id = next_id + 1
-	return user
+	return db:table(users):insert({ name = data.name, email = email })
 end
 
 function m.get_user_by_id(user_id)
-	for _, user in ipairs(users) do
-		if user.id == user_id then
-			return user
-		end
-	end
-	return nil
+	return db:table(users):where({ id = user_id }):first()
 end
 
 function m.search_users(query)
-	local results = {}
-	local q = query:lower()
-	for _, user in ipairs(users) do
-		if user.name:lower():find(q, 1, true) or user.email:lower():find(q, 1, true) then
-			results[#results + 1] = user
-		end
+	local builder = db:table(users)
+	if query ~= "" then
+		local like = "%" .. query:lower() .. "%"
+		builder = builder:where_raw("(lower(name) like ? or lower(email) like ?)", { like, like })
 	end
-	return results
+	return builder:order_by("id"):all()
 end
 
 return m
