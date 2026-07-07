@@ -1,0 +1,29 @@
+# Dev only: API with hot reload (LUDI_WATCH) + Vite dev server.
+services:
+  api:
+    build: .
+    ports:
+      - "3001:3001"
+    environment:
+      LUDI_WATCH: "1"
+      DATABASE_PATH: /app/app.db
+    volumes:
+      - .:/app
+      # Masks the front from the API container: the watcher polls the whole
+      # working directory and node_modules would make that expensive.
+      - /app/web
+
+  web:
+    image: node:24-slim
+    working_dir: /app
+    command: sh -c "npm install -g pnpm && pnpm install && pnpm dev --host 0.0.0.0 --port 5173"
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./web:/app
+      # Container-only node_modules: native binaries (esbuild) must not be
+      # shared with the host install.
+      - web_node_modules:/app/node_modules
+
+volumes:
+  web_node_modules:
