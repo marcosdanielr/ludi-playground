@@ -1,0 +1,6 @@
+@import "tailwindcss";
+
+body {
+  @apply bg-slate-950 font-sans text-slate-100;
+  color-scheme: dark;
+}
