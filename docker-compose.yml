@@ -1,7 +1,9 @@
 # Dev only: API with hot reload (LUDI_WATCH) + Vite dev server.
 services:
   api:
-    build: .
+    build:
+      context: .
+      target: dev
     ports:
       - "3001:3001"
     environment:

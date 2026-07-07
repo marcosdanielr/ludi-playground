@@ -90,6 +90,20 @@ docker compose up
   `node_modules` lives in a named volume so host and container installs
   don't clash.
 
+## Docker (prod)
+
+The `prod` target packs the whole app into a single binary with
+`ludi build` and ships it on a slim Debian (~90MB, no Lua, no LuaRocks —
+only fredy's native module rides along in the LuaRocks tree):
+
+```sh
+docker build --target prod -t api .
+docker run -p 3001:3001 -v api-data:/data api
+```
+
+The SQLite database lives in `/data` (a volume), configurable with
+`DATABASE_PATH`.
+
 ## Requirements
 
 - Lua 5.5 (recommended)
