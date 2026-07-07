@@ -35,11 +35,73 @@ Persistence uses [fredy](https://github.com/Ludi-Framework/fredy) (SQLite adapte
 
 Validation: required name, email format check, case-insensitive unique email. Errors map to proper status codes (`400`, `401`, `404`, `409`).
 
+## Chat (WebSockets)
+
+Exercises ludi's WebSocket support (`app:ws`) with a room-based chat:
+
+```
+routes/chat.lua      -- GET /rooms + WS /chat/:id
+controllers/chat.lua -- rooms, random names, broadcast, typing events
+```
+
+| Method | Path        | Description                                   |
+|--------|-------------|-----------------------------------------------|
+| GET    | `/rooms`    | Active rooms and how many people are in each  |
+| WS     | `/chat/:id` | Join room `:id` (created on first connection) |
+
+Every connection gets a server-assigned random name ("Capivara Zen",
+"Tucano Feliz"). Messages are JSON, client → server:
+
+```json
+{ "type": "message", "text": "olá" }
+{ "type": "typing" }
+```
+
+Server → client: `welcome` (your name, who's online), `join` / `leave`,
+`message` (broadcast, with incremental `id`) and `typing` (relayed to
+everyone else; the front expires it after 2.5s).
+
+## Chat front (web/)
+
+React + TypeScript + Tailwind (Vite, pnpm) client for the chat: pick or
+create a room, see who's typing, last 20 messages kept in memory.
+
+```sh
+cd web
+pnpm install
+pnpm dev
+```
+
+The API address is derived from the page host, so opening
+`http://<lan-ip>:5173` from a phone on the same network just works.
+
+## Docker (dev)
+
+Runs API + front with one command, no local Lua or Node needed:
+
+```sh
+docker compose up
+```
+
+- API on `http://localhost:3001`, built from the `Dockerfile` (Lua 5.5 +
+  LuaRocks 3.13 + ludi/fredy) and started with `LUDI_WATCH=1` — the source
+  is bind-mounted, so editing `*.lua` hot-reloads inside the container.
+- Front on `http://localhost:5173`, Vite dev server with HMR;
+  `node_modules` lives in a named volume so host and container installs
+  don't clash.
+
 ## Requirements
 
 - Lua 5.5 (recommended)
-- [LuaRocks](https://luarocks.org)
-- ludi and fredy installed locally (not yet published to LuaRocks):
+- [LuaRocks](https://luarocks.org) 3.13+ (older versions don't recognize
+  Lua 5.5 headers)
+
+```sh
+luarocks install ludi
+luarocks install fredy
+```
+
+Or, to develop against the framework checkouts:
 
 ```sh
 git clone https://github.com/Ludi-Framework/ludi
