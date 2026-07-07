@@ -29,6 +29,7 @@ end
 
 function m.search(req, res)
 	local query = req.query.q or ""
+
 	res:json(users_service.search_users(query))
 end
 
